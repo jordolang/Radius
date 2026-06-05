@@ -123,7 +123,7 @@ export function AvailabilityToggle({ userId, ttlMs = 2 * 60 * 60 * 1000 }: Props
         style={{
           background:
             "radial-gradient(120% 80% at 50% 0%, #2a1410 0%, #15100e 55%, #0e0b0a 100%)",
-          borderColor: "rgba(214,122,72,0.22)",
+          borderColor: "var(--border-ember)",
           boxShadow: "0 30px 80px -40px rgba(214,122,72,0.5)",
         }}
       >
@@ -131,14 +131,14 @@ export function AvailabilityToggle({ userId, ttlMs = 2 * 60 * 60 * 1000 }: Props
         <div className="flex items-center justify-between">
           <span
             className="text-[11px] uppercase tracking-[0.28em]"
-            style={{ color: "rgba(232,200,180,0.55)" }}
+            style={{ color: "var(--text-muted)" }}
           >
             {available ? "You're available" : "You're hidden"}
           </span>
           <span
             className="h-2.5 w-2.5 rounded-full transition-all"
             style={{
-              background: available ? "#e8915b" : "rgba(255,255,255,0.18)",
+              background: available ? "var(--ember)" : "rgba(255,255,255,0.18)",
               boxShadow: available ? "0 0 14px 3px rgba(232,145,91,0.7)" : "none",
             }}
           />
@@ -147,11 +147,11 @@ export function AvailabilityToggle({ userId, ttlMs = 2 * 60 * 60 * 1000 }: Props
         {/* headline */}
         <h2
           className="mt-5 text-3xl leading-tight"
-          style={{ fontFamily: "var(--font-display, ui-serif, Georgia, serif)", color: "#f6ece4" }}
+          style={{ fontFamily: "var(--font-display, ui-serif, Georgia, serif)", color: "var(--fg)" }}
         >
           {available ? "Open to meeting\nsomeone, nearby." : "In the mood?"}
         </h2>
-        <p className="mt-2 text-sm leading-relaxed" style={{ color: "rgba(232,200,180,0.6)" }}>
+        <p className="mt-2 text-sm leading-relaxed" style={{ color: "var(--text-muted)" }}>
           {available
             ? "Only your rough area is shared, and only while this is on. Turn it off anytime — it also expires on its own."
             : "Flip this on when you want to be found. We share a ~5-mile area, never your exact location, and never your real photo."}
@@ -178,10 +178,10 @@ export function AvailabilityToggle({ userId, ttlMs = 2 * 60 * 60 * 1000 }: Props
               )}
               <span
                 className="relative inline-flex h-2.5 w-2.5 rounded-full"
-                style={{ background: nearby ? "#e8915b" : "rgba(255,255,255,0.25)" }}
+                style={{ background: nearby ? "var(--ember)" : "rgba(255,255,255,0.25)" }}
               />
             </span>
-            <span className="text-sm" style={{ color: "#f0ddd0" }}>
+            <span className="text-sm" style={{ color: "var(--fg-soft)" }}>
               {nearby ? "Someone nearby is also available" : "No one nearby right now"}
             </span>
           </div>
@@ -193,8 +193,8 @@ export function AvailabilityToggle({ userId, ttlMs = 2 * 60 * 60 * 1000 }: Props
           disabled={busy}
           className="mt-6 w-full rounded-full py-3.5 text-sm font-medium tracking-wide transition-transform active:scale-[0.98] disabled:opacity-50"
           style={{
-            background: available ? "rgba(255,255,255,0.06)" : "linear-gradient(180deg,#ef9a63,#d6713f)",
-            color: available ? "#f0ddd0" : "#1a0e08",
+            background: available ? "rgba(255,255,255,0.06)" : "linear-gradient(180deg,var(--ember-bright),var(--ember-deep))",
+            color: available ? "var(--fg-soft)" : "var(--on-ember)",
             border: available ? "1px solid rgba(255,255,255,0.12)" : "none",
           }}
         >
@@ -202,13 +202,13 @@ export function AvailabilityToggle({ userId, ttlMs = 2 * 60 * 60 * 1000 }: Props
         </button>
 
         {/* meta row */}
-        <div className="mt-3 flex items-center justify-between text-xs" style={{ color: "rgba(232,200,180,0.45)" }}>
+        <div className="mt-3 flex items-center justify-between text-xs" style={{ color: "var(--text-faint)" }}>
           <span>{available && remaining ? remaining : "Auto-expires when on"}</span>
           <span>Mutual opt-in required to connect</span>
         </div>
 
         {error && (
-          <p className="mt-3 text-xs" style={{ color: "#f2a08a" }}>
+          <p className="mt-3 text-xs" style={{ color: "var(--danger)" }}>
             {error}
           </p>
         )}

@@ -43,3 +43,11 @@ next-env.d.ts
 
 # oh-my-claudecode local state
 /.omc/
+
+# capacitor / xcode build output (generated; never commit)
+/ios/build
+/ios/App/build
+/ios/App/build_dd
+/ios/DerivedData
+**/xcuserdata/
+*.xcuserstate

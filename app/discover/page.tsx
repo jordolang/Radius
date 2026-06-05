@@ -1,44 +1,46 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { demoUserId } from "@/lib/demo-user";
+import { PageHeader } from "@/components/ui";
+import { AuthGate } from "@/components/auth/auth-gate";
 
-export default function Discover() {
-  const [uid, setUid] = useState("");
+function DiscoverList() {
   const [alerts, setAlerts] = useState<{ matchId: string }[]>([]);
   const router = useRouter();
 
-  useEffect(() => { const id = demoUserId(); setUid(id);
-    const tick = () => fetch(`/api/beacon?userId=${id}`).then((r) => r.json()).then((d) => setAlerts(d.alerts ?? []));
-    tick(); const t = setInterval(tick, 12000); return () => clearInterval(t); }, []);
+  useEffect(() => {
+    const tick = () => fetch(`/api/beacon`).then((r) => r.json()).then((d) => setAlerts(d.alerts ?? []));
+    tick();
+    const t = setInterval(tick, 12000);
+    return () => clearInterval(t);
+  }, []);
 
-  const explore = async (matchId: string) => {
-    const [a, b] = matchId.split("__");
-    await fetch("/api/match", { method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "interest", a, b, userId: uid }) });
-    router.push(`/match/${matchId}`);
-  };
+  // Open the spark decision flow for this pair. We do NOT opt in here — interest
+  // is expressed explicitly on the decision card, so nothing reveals prematurely.
+  const explore = (matchId: string) => router.push(`/match/${matchId}`);
 
   return (
     <div>
-      <h1 className="mb-1 text-3xl">Nearby</h1>
-      <p className="mb-5 text-sm" style={{ color: "rgba(232,200,180,0.55)" }}>
-        Everyone here opted in and is available now. Tap to show interest — they only learn it's mutual if they tap back.
-      </p>
+      <PageHeader title="Nearby">
+        Everyone here opted in, is available now, and fits both your absolutes. Tap to see them — they only learn it&apos;s mutual if they tap back.
+      </PageHeader>
       {alerts.length === 0 ? (
-        <p className="text-sm" style={{ color: "rgba(232,200,180,0.45)" }}>No one nearby right now. Turn on availability and keep beacon mode on.</p>
+        <p className="faint text-sm">No one nearby right now. Turn on availability and keep beacon mode on.</p>
       ) : (
         <div className="space-y-2">
           {alerts.map((a) => (
             <button key={a.matchId} onClick={() => explore(a.matchId)}
-              className="flex w-full items-center justify-between rounded-2xl border px-4 py-4"
-              style={{ borderColor: "rgba(232,145,91,0.35)", background: "rgba(232,145,91,0.07)" }}>
+              className="card card-ember flex w-full items-center justify-between text-left">
               <span className="text-sm">Someone nearby is available</span>
-              <span className="text-sm" style={{ color: "#e8915b" }}>Explore →</span>
+              <span className="text-sm" style={{ color: "var(--ember)" }}>Explore →</span>
             </button>
           ))}
         </div>
       )}
     </div>
   );
+}
+
+export default function Discover() {
+  return <AuthGate>{() => <DiscoverList />}</AuthGate>;
 }

@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { PrimaryButton } from "@/components/ui";
 
 const CATEGORIES: { value: string; label: string }[] = [
   { value: "no_show_or_misrepresented", label: "Didn't match their profile / no-show" },
@@ -21,28 +22,23 @@ export function SafetyReport({ reporterId, reportedId, onDone }: { reporterId: s
     setSent(true); onDone?.();
   };
 
-  if (sent) return <p className="text-sm" style={{ color: "rgba(232,200,180,0.6)" }}>Thanks — this goes privately to our safety team. It never appears on anyone's profile.</p>;
+  if (sent) return <p className="muted text-sm">Thanks — this goes privately to our safety team. It never appears on anyone&apos;s profile.</p>;
 
   return (
     <div className="space-y-2">
-      <p className="text-sm font-medium">Report a safety concern</p>
+      <p className="section-title">Report a safety concern</p>
       {CATEGORIES.map((c) => (
         <button key={c.value} onClick={() => setCat(c.value)}
-          className="block w-full rounded-xl border px-4 py-2.5 text-left text-sm"
-          style={{ borderColor: cat === c.value ? "rgba(232,145,91,0.5)" : "rgba(255,255,255,0.1)",
-                   background: cat === c.value ? "rgba(232,145,91,0.1)" : "transparent" }}>
+          className={`block w-full rounded-xl border px-4 py-2.5 text-left text-sm transition-colors ${cat === c.value ? "chip-on" : ""}`}
+          style={cat === c.value ? undefined : { borderColor: "var(--border)" }}>
           {c.label}
         </button>
       ))}
       <textarea value={note} onChange={(e) => setNote(e.target.value.slice(0, 1000))}
-        placeholder="Anything else (optional)" rows={3}
-        className="w-full rounded-xl border bg-transparent px-3 py-2 text-sm"
-        style={{ borderColor: "rgba(255,255,255,0.1)" }} />
-      <button onClick={submit} disabled={!cat}
-        className="w-full rounded-full py-2.5 text-sm font-medium disabled:opacity-40"
-        style={{ background: "linear-gradient(180deg,#ef9a63,#d6713f)", color: "#1a0e08" }}>
+        placeholder="Anything else (optional)" rows={3} className="textarea" />
+      <PrimaryButton block disabled={!cat} onClick={submit}>
         Send privately
-      </button>
+      </PrimaryButton>
     </div>
   );
 }

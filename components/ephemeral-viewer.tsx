@@ -58,7 +58,7 @@ export function EphemeralViewer({
     <div className="mx-auto w-full max-w-sm select-none">
       <div
         className="relative aspect-[3/4] w-full overflow-hidden rounded-3xl border"
-        style={{ borderColor: "rgba(214,122,72,0.25)", background: "#120d0b" }}
+        style={{ borderColor: "var(--border-ember)", background: "var(--surface-2)" }}
         onMouseDown={startHold}
         onMouseUp={endHold}
         onMouseLeave={endHold}
@@ -101,13 +101,13 @@ export function EphemeralViewer({
               className="mb-3 flex h-14 w-14 items-center justify-center rounded-full"
               style={{ background: "rgba(232,145,91,0.12)", border: "1px solid rgba(232,145,91,0.35)" }}
             >
-              <span style={{ color: "#e8915b" }}>{spent ? "✓" : "⊚"}</span>
+              <span style={{ color: "var(--ember)" }}>{spent ? "✓" : "⊚"}</span>
             </div>
-            <p className="text-sm" style={{ color: spent ? "rgba(232,200,180,0.55)" : "#f0ddd0" }}>
+            <p className="text-sm" style={{ color: spent ? "var(--text-muted)" : "var(--fg-soft)" }}>
               {spent ? "Viewed once — now gone." : "Press and hold to view"}
             </p>
             {!spent && (
-              <p className="mt-1 text-xs" style={{ color: "rgba(232,200,180,0.45)" }}>
+              <p className="mt-1 text-xs" style={{ color: "var(--text-faint)" }}>
                 Disappears the moment you let go
               </p>
             )}
@@ -116,7 +116,7 @@ export function EphemeralViewer({
       </div>
 
       {/* the honest line — shown to the SENDER at compose time too */}
-      <p className="mt-3 text-center text-xs leading-relaxed" style={{ color: "rgba(232,200,180,0.45)" }}>
+      <p className="mt-3 text-center text-xs leading-relaxed" style={{ color: "var(--text-faint)" }}>
         We block saving and sharing in-app and watermark every view, but no app
         can stop a determined screenshot or a second camera. Only send what
         you're okay with existing.

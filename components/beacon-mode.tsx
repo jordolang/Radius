@@ -23,18 +23,18 @@ export function BeaconMode({ userId }: { userId: string }) {
   }, [on, userId]);
 
   return (
-    <div className="mt-4 rounded-2xl border p-4" style={{ borderColor: "rgba(214,122,72,0.2)" }}>
+    <div className="card card-ember mt-4">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium">Beacon mode</p>
-          <p className="text-xs" style={{ color: "rgba(232,200,180,0.5)" }}>
+          <p className="section-title">Beacon mode</p>
+          <p className="faint text-xs">
             Get pinged the moment someone available is near you.
           </p>
         </div>
         <button
           onClick={() => setOn((v) => !v)}
           className="h-7 w-12 rounded-full transition-colors"
-          style={{ background: on ? "#e8915b" : "rgba(255,255,255,0.15)" }}
+          style={{ background: on ? "var(--ember)" : "rgba(255,255,255,0.15)" }}
           aria-pressed={on}
         >
           <span className="block h-6 w-6 rounded-full bg-white transition-transform"
@@ -42,7 +42,7 @@ export function BeaconMode({ userId }: { userId: string }) {
         </button>
       </div>
       {on && nearby && (
-        <p className="mt-3 text-sm" style={{ color: "#e8915b" }}>● Someone nearby is available — open Discover.</p>
+        <p className="mt-3 text-sm" style={{ color: "var(--ember)" }}>● Someone nearby is available — open Discover.</p>
       )}
     </div>
   );

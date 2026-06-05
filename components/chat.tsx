@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { scanForPii, redactPii, shouldBlock } from "@/lib/pii-guard";
-import { EphemeralViewer } from "@/components/ephemeral-viewer";
+import { PrimaryButton } from "@/components/ui";
 
 type Msg = { id: string; from: string; text?: string; ephemeralId?: string };
 
@@ -42,31 +42,33 @@ export function Chat({ matchId, selfId, peerId, selfAlias, peerAlias, canShareMe
           <div key={m.id} className="max-w-[80%] rounded-2xl px-3 py-2 text-sm"
             style={{ alignSelf: m.from === selfId ? "flex-end" : "flex-start",
                      marginLeft: m.from === selfId ? "auto" : 0,
-                     background: m.from === selfId ? "rgba(232,145,91,0.15)" : "rgba(255,255,255,0.05)" }}>
+                     background: m.from === selfId ? "var(--ember-tint)" : "rgba(255,255,255,0.05)" }}>
             {m.text}
             {m.ephemeralId && (
-              <div className="mt-1 text-xs" style={{ color: "rgba(232,200,180,0.55)" }}>
-                Sent a one-time photo · press &amp; hold to view, then it's gone
+              <div className="muted mt-1 text-xs">
+                Sent a one-time photo · press &amp; hold to view, then it&apos;s gone
               </div>
             )}
           </div>
         ))}
       </div>
 
-      {warn && <p className="text-xs" style={{ color: "#f2a08a" }}>{warn}</p>}
+      {warn && <p className="error-text">{warn}</p>}
 
       <div className="flex gap-2">
         <input value={text} onChange={(e) => setText(e.target.value)} onKeyDown={(e) => e.key === "Enter" && send()}
-          placeholder={`Message ${peerAlias}…`} className="flex-1 rounded-full border bg-transparent px-4 py-2 text-sm" style={{ borderColor: "rgba(255,255,255,0.12)" }} />
-        <button onClick={send} className="rounded-full px-4 text-sm" style={{ background: "linear-gradient(180deg,#ef9a63,#d6713f)", color: "#1a0e08" }}>Send</button>
+          placeholder={`Message ${peerAlias}…`}
+          className="flex-1 rounded-full border bg-transparent px-4 py-2 text-sm"
+          style={{ borderColor: "var(--border)" }} />
+        <PrimaryButton className="btn-sm" onClick={send}>Send</PrimaryButton>
       </div>
 
       {canShareMedia ? (
-        <button onClick={sendEphemeral} className="text-xs underline" style={{ color: "#e8915b" }}>
+        <button onClick={sendEphemeral} className="link-ember text-xs">
           Send a one-time photo (disappears after one view)
         </button>
       ) : (
-        <p className="text-xs" style={{ color: "rgba(232,200,180,0.4)" }}>
+        <p className="faint text-xs">
           Both of you must opt in to media sharing before photos can be sent.
         </p>
       )}

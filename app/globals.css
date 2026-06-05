@@ -2,8 +2,452 @@
 @tailwind components;
 @tailwind utilities;
 
-:root { --bg: #0e0b0a; --fg: #f6ece4; }
-html, body { background: var(--bg); color: var(--fg); }
-body { font-family: var(--font-body), system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
-h1, h2, h3 { font-family: var(--font-display), Georgia, serif; }
-* { box-sizing: border-box; }
+/* ───────────────────────── Design tokens ─────────────────────────
+   One source of truth for color, type, and shape. Every screen pulls
+   from these so the UI stays consistent. Do not hardcode hex/rgba in
+   components — add or reuse a token here instead. */
+:root {
+  /* surfaces */
+  --bg: #0e0b0a;
+  --surface: #15100e;
+  --surface-2: #120d0b;
+
+  /* text */
+  --fg: #f6ece4;          /* primary copy + headings */
+  --fg-soft: #f0ddd0;     /* emphasis on dark fills */
+  --text-muted: rgba(232, 200, 180, 0.62); /* secondary copy */
+  --text-faint: rgba(232, 200, 180, 0.45); /* hints, meta, captions */
+
+  /* brand ember */
+  --ember: #e8915b;
+  --ember-bright: #ef9a63;
+  --ember-deep: #d6713f;
+  --on-ember: #1a0e08;    /* text on ember fills */
+
+  /* lines + tints */
+  --border: rgba(255, 255, 255, 0.12);
+  --border-soft: rgba(255, 255, 255, 0.08);
+  --border-ember: rgba(214, 122, 72, 0.28);
+  --ember-tint: rgba(232, 145, 91, 0.1);
+  --ember-line: rgba(232, 145, 91, 0.45);
+
+  /* feedback */
+  --danger: #f2a08a;
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--fg);
+}
+body {
+  font-family: var(--font-body), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+h1,
+h2,
+h3 {
+  font-family: var(--font-display), Georgia, serif;
+}
+* {
+  box-sizing: border-box;
+}
+
+/* ─────────────────────── Shared UI components ───────────────────── */
+@layer components {
+  /* typography */
+  .eyebrow {
+    @apply text-[11px] font-medium uppercase tracking-[0.28em];
+    color: var(--text-muted);
+  }
+  .page-title {
+    font-family: var(--font-display), Georgia, serif;
+    @apply text-3xl leading-tight;
+    color: var(--fg);
+  }
+  .page-subtitle {
+    @apply mt-2 text-sm leading-relaxed;
+    color: var(--text-muted);
+  }
+  .section-title {
+    @apply text-sm font-medium;
+    color: var(--fg);
+  }
+  .muted {
+    color: var(--text-muted);
+  }
+  .faint {
+    color: var(--text-faint);
+  }
+  .help-text {
+    @apply text-xs leading-relaxed;
+    color: var(--text-faint);
+  }
+  .error-text {
+    @apply text-xs leading-relaxed;
+    color: var(--danger);
+  }
+  .link-ember {
+    @apply text-sm underline underline-offset-2;
+    color: var(--ember);
+  }
+
+  /* surfaces */
+  .card {
+    @apply rounded-2xl border p-4;
+    border-color: var(--border);
+    background: var(--surface);
+  }
+  .card-ember {
+    border-color: var(--border-ember);
+  }
+
+  /* buttons — appearance only; callers add width (w-full / flex-1) */
+  .btn-primary {
+    @apply rounded-full px-5 py-3 text-sm font-medium transition-transform active:scale-[0.98] disabled:opacity-40;
+    background: linear-gradient(180deg, var(--ember-bright), var(--ember-deep));
+    color: var(--on-ember);
+    border: none;
+  }
+  .btn-secondary {
+    @apply rounded-full border px-5 py-3 text-sm font-medium transition-colors active:scale-[0.98] disabled:opacity-40;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--fg-soft);
+    border-color: var(--border);
+  }
+  .btn-sm {
+    @apply px-4 py-2 text-xs;
+  }
+
+  /* selectable pills */
+  .chip {
+    @apply rounded-full border px-4 py-2 text-sm transition-colors;
+    border-color: var(--border);
+    color: var(--fg);
+    background: transparent;
+  }
+  .chip-on {
+    border-color: var(--ember-line);
+    background: var(--ember-tint);
+    color: var(--fg);
+  }
+
+  /* form controls */
+  .field-label {
+    @apply block text-xs;
+    color: var(--text-muted);
+  }
+
+  /* ── absolutes range slider ── */
+  .abs-range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    border-radius: 9999px;
+    background: var(--ember-tint);
+    outline: none;
+  }
+  .abs-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: linear-gradient(180deg, var(--ember-bright), var(--ember-deep));
+    border: 2px solid var(--bg);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+  }
+  .abs-range::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: var(--ember);
+    border: 2px solid var(--bg);
+    cursor: pointer;
+  }
+
+  /* ── bottom tab bar ── */
+  .tab-bar {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 900;
+    display: flex;
+    justify-content: center;
+    padding-bottom: env(safe-area-inset-bottom);
+    background: linear-gradient(180deg, rgba(14, 11, 10, 0) 0%, rgba(14, 11, 10, 0.92) 38%, var(--bg) 100%);
+    pointer-events: none;
+  }
+  .tab-bar-inner {
+    pointer-events: auto;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    width: 100%;
+    max-width: 28rem; /* matches the app's max-w-md column */
+    border-top: 1px solid var(--border-soft);
+    background: rgba(18, 13, 11, 0.92);
+    backdrop-filter: blur(12px);
+  }
+  .tab-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 9px 0 11px;
+    color: var(--text-faint);
+    transition: color 0.15s ease;
+  }
+  .tab-item:active { transform: scale(0.96); }
+  .tab-item-on { color: var(--ember); }
+  .tab-icon { line-height: 0; }
+  .tab-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
+  .input,
+  .select,
+  .textarea {
+    @apply mt-1 w-full rounded-lg border bg-transparent px-3 py-2 text-sm;
+    border-color: var(--border);
+    color: var(--fg);
+  }
+}
+
+/* ───────────────────────── Map (Leaflet) ───────────────────────── */
+.leaflet-container {
+  background: var(--surface-2);
+  font-family: inherit;
+}
+.leaflet-bar a {
+  background: rgba(16, 11, 10, 0.85) !important;
+  color: var(--fg-soft) !important;
+  border-color: var(--border) !important;
+}
+.leaflet-bar a:hover {
+  background: rgba(40, 28, 24, 0.95) !important;
+}
+
+/* ───────────────────────── Map (Mapbox GL) ───────────────────────── */
+.mapboxgl-map {
+  font-family: inherit;
+}
+.mapboxgl-ctrl-group {
+  background: rgba(16, 11, 10, 0.85) !important;
+  border: 1px solid var(--border) !important;
+}
+.mapboxgl-ctrl-group button + button {
+  border-top: 1px solid var(--border) !important;
+}
+.mapboxgl-ctrl-group button .mapboxgl-ctrl-icon {
+  filter: invert(0.85);
+}
+.mapboxgl-ctrl-attrib,
+.mapboxgl-ctrl-attrib a {
+  background: rgba(16, 11, 10, 0.6) !important;
+  color: var(--fg-soft) !important;
+}
+
+/* Your location dot — shared by both map engines (Leaflet divIcon + Mapbox DOM marker) */
+.radius-dot {
+  position: relative;
+  display: block;
+  width: 22px;
+  height: 22px;
+}
+.radius-dot-core {
+  position: absolute;
+  inset: 6px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.45);
+}
+.radius-dot.is-on .radius-dot-core {
+  background: var(--ember);
+  box-shadow: 0 0 10px 2px rgba(232, 145, 91, 0.8);
+}
+.radius-dot.is-on::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 1px solid var(--ember);
+  animation: radius-pulse 2.4s ease-out infinite;
+}
+.radius-dot.is-near::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: rgba(232, 145, 91, 0.4);
+  animation: radius-ping 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+@keyframes radius-pulse {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+@keyframes radius-ping {
+  0% { transform: scale(1); opacity: 0.7; }
+  80%, 100% { transform: scale(3.2); opacity: 0; }
+}
+
+/* ─────────────────── Matching interface — "Spark" ───────────────────
+   The alert + reveal choreography. Two embers — you and a nearby someone —
+   drift across the radius, meet at center, and ignite. Used by the
+   match-alert overlay and the spark-decision reveal. */
+
+/* Full-screen alert overlay */
+.spark-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: radial-gradient(120% 90% at 50% 40%, rgba(40, 18, 10, 0.86), rgba(10, 8, 7, 0.96));
+  backdrop-filter: blur(10px);
+  animation: spark-fade-in 0.4s ease-out both;
+}
+@keyframes spark-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.spark-overlay.is-leaving {
+  animation: spark-fade-out 0.32s ease-in both;
+}
+@keyframes spark-fade-out {
+  to { opacity: 0; transform: scale(0.98); }
+}
+
+/* The ignition stage — square arena where the embers converge */
+.spark-stage {
+  position: relative;
+  width: min(78vw, 300px);
+  height: min(78vw, 300px);
+  margin-bottom: 1.75rem;
+}
+
+/* Two converging embers */
+.spark-ember {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin: -8px 0 0 -8px;
+  border-radius: 9999px;
+  background: var(--ember-bright);
+  box-shadow: 0 0 16px 4px rgba(232, 145, 91, 0.85);
+}
+.spark-ember.from-you { animation: spark-in-left 1.15s cubic-bezier(0.5, 0, 0.2, 1) both; }
+.spark-ember.from-them { animation: spark-in-right 1.15s cubic-bezier(0.5, 0, 0.2, 1) both; }
+@keyframes spark-in-left {
+  0% { transform: translate(-118px, 86px) scale(0.7); opacity: 0; }
+  35% { opacity: 1; }
+  100% { transform: translate(0, 0) scale(1); opacity: 1; }
+}
+@keyframes spark-in-right {
+  0% { transform: translate(118px, -86px) scale(0.7); opacity: 0; }
+  35% { opacity: 1; }
+  100% { transform: translate(0, 0) scale(1); opacity: 1; }
+}
+
+/* The flare when they meet */
+.spark-core {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, #fff 0%, var(--ember-bright) 45%, var(--ember-deep) 100%);
+  opacity: 0;
+  animation: spark-ignite 1s ease-out 1.05s both;
+}
+@keyframes spark-ignite {
+  0% { opacity: 0; transform: scale(0.2); }
+  40% { opacity: 1; transform: scale(1.5); box-shadow: 0 0 60px 20px rgba(232, 145, 91, 0.7); }
+  100% { opacity: 1; transform: scale(1); box-shadow: 0 0 34px 10px rgba(232, 145, 91, 0.55); }
+}
+
+/* Expanding rings radiating from the ignition */
+.spark-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  margin: -20px 0 0 -20px;
+  border-radius: 9999px;
+  border: 1.5px solid var(--ember-line);
+  opacity: 0;
+  animation: spark-ring-out 1.8s ease-out var(--ring-delay, 1.15s) infinite;
+}
+@keyframes spark-ring-out {
+  0% { transform: scale(0.4); opacity: 0.8; }
+  100% { transform: scale(5.5); opacity: 0; }
+}
+
+/* Copy below the stage rises in after ignition */
+.spark-rise {
+  animation: spark-rise 0.6s ease-out 1.5s both;
+}
+@keyframes spark-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Reveal: masked avatar blooms into the unlocked profile ── */
+.reveal-avatar {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  margin: 0 auto;
+  border-radius: 9999px;
+  overflow: hidden;
+  border: 2px solid var(--ember-line);
+  background: var(--surface-2);
+  box-shadow: 0 0 30px 6px rgba(232, 145, 91, 0.3);
+}
+.reveal-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.reveal-avatar.is-revealing img {
+  animation: reveal-bloom 1.1s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+@keyframes reveal-bloom {
+  0% { filter: blur(22px) saturate(0.5); transform: scale(1.18); opacity: 0.4; }
+  100% { filter: blur(0) saturate(1); transform: scale(1); opacity: 1; }
+}
+
+/* Placeholder silhouette used before reveal and when no avatar exists */
+.reveal-masked {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 2.5rem;
+  color: var(--ember);
+  background: radial-gradient(circle at 50% 35%, var(--ember-tint), transparent 70%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spark-overlay,
+  .spark-ember,
+  .spark-core,
+  .spark-ring,
+  .spark-rise,
+  .reveal-avatar.is-revealing img {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

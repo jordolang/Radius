@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { PrimaryButton } from "@/components/ui";
 
 const OPTS = {
   gender: ["woman", "man", "nonbinary", "other"],
   seeking: ["woman", "man", "nonbinary", "anyone"],
-  heightBand: ["<5'2", "5'2-5'5", "5'6-5'9", "5'10-6'1", "6'2+"],
   buildBand: ["petite", "lean", "average", "solid", "large"],
   bodyType: ["slim", "athletic", "average", "curvy", "muscular", "plus"],
   hairColor: ["black", "brown", "blonde", "red", "gray", "other", "none"],
@@ -14,6 +14,10 @@ const OPTS = {
   relationshipStatus: ["single", "open_relationship", "polyamorous", "separated"],
 };
 
+// Height as a ft'in" picker; the coarse display band is derived server-side.
+const HEIGHTS: { value: number; label: string }[] = [];
+for (let n = 48; n <= 84; n++) HEIGHTS.push({ value: n, label: `${Math.floor(n / 12)}'${n % 12}"` });
+
 export function ProfileForm({ userId, alias, onSaved }: { userId: string; alias: string; onSaved?: () => void }) {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [working, setWorking] = useState(false);
@@ -21,6 +25,9 @@ export function ProfileForm({ userId, alias, onSaved }: { userId: string; alias:
   const [f, setF] = useState<Record<string, string>>({});
   const [seeking, setSeeking] = useState<string[]>([]);
   const [attest, setAttest] = useState(false);
+  const [age, setAge] = useState("");
+  const [heightIn, setHeightIn] = useState("");
+  const [weightLbs, setWeightLbs] = useState("");
 
   const set = (k: string, v: string) => setF((p) => ({ ...p, [k]: v }));
 
@@ -40,7 +47,8 @@ export function ProfileForm({ userId, alias, onSaved }: { userId: string; alias:
 
   const save = async () => {
     const profile = { userId, alias, avatarUrl, seeking,
-      gender: f.gender, heightBand: f.heightBand, buildBand: f.buildBand, bodyType: f.bodyType,
+      age: Number(age), heightInches: Number(heightIn), weightLbs: Number(weightLbs),
+      gender: f.gender, buildBand: f.buildBand, bodyType: f.bodyType,
       hairColor: f.hairColor, hairLength: f.hairLength, smoking: f.smoking, drinking: f.drinking,
       cannabis: f.cannabis, otherDrugs: f.otherDrugs, relationshipStatus: f.relationshipStatus,
       nonDeceptionAttestation: attest, ethnicity: f.ethnicity || "prefer_not_to_say" };
@@ -51,9 +59,8 @@ export function ProfileForm({ userId, alias, onSaved }: { userId: string; alias:
 
   const Select = ({ field, opts, label }: { field: string; opts: keyof typeof OPTS; label: string }) => (
     <label className="block">
-      <span className="text-xs" style={{ color: "rgba(232,200,180,0.6)" }}>{label}</span>
-      <select value={f[field] ?? ""} onChange={(e) => set(field, e.target.value)}
-        className="mt-1 w-full rounded-lg border bg-transparent px-3 py-2 text-sm" style={{ borderColor: "rgba(255,255,255,0.12)", color: "#f6ece4" }}>
+      <span className="field-label">{label}</span>
+      <select value={f[field] ?? ""} onChange={(e) => set(field, e.target.value)} className="select">
         <option value="" className="bg-ink">—</option>
         {OPTS[opts].map((o) => <option key={o} value={o} className="bg-ink">{o.replace(/_/g, " ")}</option>)}
       </select>
@@ -63,25 +70,53 @@ export function ProfileForm({ userId, alias, onSaved }: { userId: string; alias:
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
-        <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border" style={{ borderColor: "rgba(214,122,72,0.3)" }}>
-          {avatarUrl ? <img src={avatarUrl} alt="" className="h-full w-full object-cover" /> : <span className="text-xs" style={{ color: "rgba(232,200,180,0.4)" }}>avatar</span>}
+        <div
+          className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl border"
+          style={{ borderColor: "var(--border-ember)" }}
+        >
+          {avatarUrl ? <img src={avatarUrl} alt="" className="h-full w-full object-cover" /> : <span className="faint text-xs">avatar</span>}
         </div>
         <div>
-          <label className="cursor-pointer text-sm underline" style={{ color: "#e8915b" }}>
+          <label className="link-ember cursor-pointer">
             {working ? "Disguising…" : "Upload a photo"}
             <input type="file" accept="image/*" className="hidden" onChange={(e) => e.target.files?.[0] && onPhoto(e.target.files[0])} />
           </label>
-          <p className="mt-1 text-xs" style={{ color: "rgba(232,200,180,0.45)" }}>
+          <p className="help-text mt-1">
             We strip location data and turn it into a masked illustration. It hints at your look without identifying you.
           </p>
         </div>
       </div>
 
-      <p className="text-sm">You'll be known as <span style={{ color: "#e8915b" }}>{alias}</span>.</p>
+      <p className="text-sm">You&apos;ll be known as <span style={{ color: "var(--ember)" }}>{alias}</span>.</p>
+
+      {/* About you — exact figures power the absolutes match filter; the public
+          profile only ever shows coarse bands derived from these. */}
+      <div className="grid grid-cols-3 gap-3">
+        <label className="block">
+          <span className="field-label">Age</span>
+          <input type="number" inputMode="numeric" min={18} max={120} value={age}
+            onChange={(e) => setAge(e.target.value)} className="input" placeholder="—" />
+        </label>
+        <label className="block">
+          <span className="field-label">Height</span>
+          <select value={heightIn} onChange={(e) => setHeightIn(e.target.value)} className="select">
+            <option value="" className="bg-ink">—</option>
+            {HEIGHTS.map((h) => <option key={h.value} value={h.value} className="bg-ink">{h.label}</option>)}
+          </select>
+        </label>
+        <label className="block">
+          <span className="field-label">Weight</span>
+          <input type="number" inputMode="numeric" min={50} max={700} value={weightLbs}
+            onChange={(e) => setWeightLbs(e.target.value)} className="input" placeholder="lbs" />
+        </label>
+      </div>
+      <p className="help-text">
+        Your exact age, height, and weight are used only to match against people&apos;s
+        absolutes — never shown verbatim. Others see coarse bands.
+      </p>
 
       <div className="grid grid-cols-2 gap-3">
         <Select field="gender" opts="gender" label="Gender" />
-        <Select field="heightBand" opts="heightBand" label="Height" />
         <Select field="buildBand" opts="buildBand" label="Build" />
         <Select field="bodyType" opts="bodyType" label="Body type" />
         <Select field="hairColor" opts="hairColor" label="Hair color" />
@@ -94,12 +129,14 @@ export function ProfileForm({ userId, alias, onSaved }: { userId: string; alias:
       </div>
 
       <div>
-        <span className="text-xs" style={{ color: "rgba(232,200,180,0.6)" }}>Seeking</span>
+        <span className="field-label">Seeking</span>
         <div className="mt-1 flex flex-wrap gap-2">
           {OPTS.seeking.map((s) => (
-            <button key={s} onClick={() => setSeeking((p) => p.includes(s) ? p.filter((x) => x !== s) : [...p, s])}
-              className="rounded-full border px-3 py-1 text-sm"
-              style={{ borderColor: seeking.includes(s) ? "rgba(232,145,91,0.5)" : "rgba(255,255,255,0.12)", background: seeking.includes(s) ? "rgba(232,145,91,0.12)" : "transparent" }}>
+            <button
+              key={s}
+              onClick={() => setSeeking((p) => p.includes(s) ? p.filter((x) => x !== s) : [...p, s])}
+              className={`chip btn-sm ${seeking.includes(s) ? "chip-on" : ""}`}
+            >
               {s}
             </button>
           ))}
@@ -108,18 +145,18 @@ export function ProfileForm({ userId, alias, onSaved }: { userId: string; alias:
 
       <label className="flex items-start gap-2 text-sm">
         <input type="checkbox" checked={attest} onChange={(e) => setAttest(e.target.checked)} className="mt-1" />
-        <span>I'm not deceiving a monogamous partner. (Cheating isn't allowed here.)</span>
+        <span>I&apos;m not deceiving a monogamous partner. (Cheating isn&apos;t allowed here.)</span>
       </label>
 
-      <p className="text-xs" style={{ color: "rgba(232,200,180,0.45)" }}>
+      <p className="help-text">
         Sexual-health details are optional and private — you can choose to share them later in chat. We never put health status on a public profile.
       </p>
 
-      {errors.length > 0 && <ul className="text-xs" style={{ color: "#f2a08a" }}>{errors.map((e) => <li key={e}>• {e}</li>)}</ul>}
+      {errors.length > 0 && <ul className="error-text">{errors.map((e) => <li key={e}>• {e}</li>)}</ul>}
 
-      <button onClick={save} className="w-full rounded-full py-3 text-sm font-medium" style={{ background: "linear-gradient(180deg,#ef9a63,#d6713f)", color: "#1a0e08" }}>
+      <PrimaryButton block onClick={save}>
         Save profile
-      </button>
+      </PrimaryButton>
     </div>
   );
 }

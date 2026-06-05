@@ -135,13 +135,13 @@ export function PreMeetCall({ callId, selfId, peerId, isInitiator, onComplete }:
   const allChecked = useMemo(() => CHECKLIST_ITEMS.every((i) => call.checklist[i.key]), [call.checklist]);
 
   return (
-    <div className="mx-auto w-full max-w-md text-[#f6ece4]">
+    <div className="mx-auto w-full max-w-md" style={{ color: "var(--fg)" }}>
       <div className="grid grid-cols-2 gap-2">
         <video ref={remoteRef} autoPlay playsInline className="aspect-[3/4] w-full rounded-2xl bg-black object-cover" />
         <video ref={localRef} autoPlay playsInline muted className="aspect-[3/4] w-full rounded-2xl bg-black object-cover" />
       </div>
 
-      <p className="mt-3 text-center text-xs" style={{ color: "rgba(232,200,180,0.5)" }}>
+      <p className="mt-3 text-center text-xs" style={{ color: "var(--text-muted)" }}>
         Live call · never recorded · {call.phase === "connecting" ? "connecting…" : call.phase}
       </p>
 
@@ -164,7 +164,7 @@ export function PreMeetCall({ callId, selfId, peerId, isInitiator, onComplete }:
               >
                 <span
                   className="flex h-5 w-5 items-center justify-center rounded-md text-xs"
-                  style={{ background: call.checklist[item.key] ? "#e8915b" : "transparent", border: "1px solid rgba(232,145,91,0.5)", color: "#1a0e08" }}
+                  style={{ background: call.checklist[item.key] ? "var(--ember)" : "transparent", border: "1px solid rgba(232,145,91,0.5)", color: "var(--on-ember)" }}
                 >
                   {call.checklist[item.key] ? "✓" : ""}
                 </span>
@@ -181,13 +181,13 @@ export function PreMeetCall({ callId, selfId, peerId, isInitiator, onComplete }:
               onClick={confirm}
               disabled={!canConfirm(call)}
               className="flex-1 rounded-full py-3 text-sm font-medium disabled:opacity-40"
-              style={{ background: "linear-gradient(180deg,#ef9a63,#d6713f)", color: "#1a0e08" }}
+              style={{ background: "linear-gradient(180deg,var(--ember-bright),var(--ember-deep))", color: "var(--on-ember)" }}
             >
               {call.confirmed[selfId] ? "Waiting on them…" : "We'll meet"}
             </button>
           </div>
           {!allChecked && (
-            <p className="mt-2 text-center text-xs" style={{ color: "rgba(232,200,180,0.4)" }}>
+            <p className="mt-2 text-center text-xs" style={{ color: "var(--text-faint)" }}>
               Work through the checklist together to enable “We'll meet”. Either of you can stop anytime.
             </p>
           )}

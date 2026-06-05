@@ -1,29 +1,43 @@
 "use client";
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { AvailabilityToggle } from "@/components/availability-toggle";
+import dynamic from "next/dynamic";
 import { BeaconMode } from "@/components/beacon-mode";
-import { demoUserId } from "@/lib/demo-user";
+import { BeaconWatcher } from "@/components/match/beacon-watcher";
+import { AuthGate } from "@/components/auth/auth-gate";
+// Primary navigation now lives in the persistent bottom TabBar (see app/layout.tsx).
+
+// The map touches `window`, so load it client-only (no SSR).
+const RadiusMap = dynamic(() => import("@/components/radius-map").then((m) => m.RadiusMap), {
+  ssr: false,
+  loading: () => (
+    <div
+      className="flex items-center justify-center rounded-3xl border"
+      style={{ borderColor: "var(--border-ember)", height: "62vh", minHeight: 420, background: "var(--surface-2)" }}
+    >
+      <span className="faint text-sm">Loading map…</span>
+    </div>
+  ),
+});
 
 export default function Home() {
-  const [uid, setUid] = useState("");
-  useEffect(() => setUid(demoUserId()), []);
-  if (!uid) return null;
   return (
-    <div>
-      <header className="mb-6">
-        <h1 className="text-4xl" style={{ color: "#f6ece4" }}>In The Mood</h1>
-        <p className="mt-1 text-sm" style={{ color: "rgba(232,200,180,0.55)" }}>
-          Anonymous, consent-first introductions. You're a pseudonym and a masked avatar until you both choose otherwise.
-        </p>
-      </header>
-      <AvailabilityToggle userId={uid} />
-      <BeaconMode userId={uid} />
-      <nav className="mt-6 grid grid-cols-3 gap-2 text-center text-sm">
-        <Link href="/onboarding" className="rounded-xl border py-3" style={{ borderColor: "rgba(255,255,255,0.12)" }}>Profile</Link>
-        <Link href="/discover" className="rounded-xl border py-3" style={{ borderColor: "rgba(255,255,255,0.12)" }}>Discover</Link>
-        <Link href="/plan" className="rounded-xl border py-3" style={{ borderColor: "rgba(255,255,255,0.12)" }}>Plan ahead</Link>
-      </nav>
-    </div>
+    <AuthGate>
+      {(uid) => (
+        <div>
+          <header className="mb-3 flex items-baseline justify-between">
+            <h1 className="text-2xl" style={{ fontFamily: "var(--font-display), Georgia, serif", color: "var(--fg)" }}>
+              In The Mood
+            </h1>
+            <span className="eyebrow">Radius</span>
+          </header>
+
+          <RadiusMap userId={uid} />
+
+          <BeaconMode userId={uid} />
+
+          {/* Fires the signature spark alert when a compatible person is available nearby. */}
+          <BeaconWatcher userId={uid} />
+        </div>
+      )}
+    </AuthGate>
   );
 }

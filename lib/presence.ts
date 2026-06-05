@@ -22,6 +22,8 @@ export interface PresenceStore {
   all(): Promise<Presence[]>;
   isBlockedBetween(a: UserId, b: UserId): Promise<boolean>;
   trustStatus(userId: UserId): Promise<TrustState["status"]>;
+  /** Mutual absolutes gate: both inside each other's preferences (lib/preferences). */
+  compatible(a: UserId, b: UserId): Promise<boolean>;
 }
 
 const DEFAULT_TTL_MS = 2 * 60 * 60 * 1000; // 2h: presence auto-expires
@@ -82,6 +84,7 @@ export async function findCandidates(
     if (!isActive(other, now)) continue; // expired availability is invisible
     if (!inProximity(me.cell, other.cell)) continue;
     if (await store.isBlockedBetween(userId, other.userId)) continue;
+    if (!(await store.compatible(userId, other.userId))) continue; // outside either's absolutes
     const status = await store.trustStatus(other.userId);
     if (status === "suspended" || status === "banned") continue;
     out.push(other.userId);

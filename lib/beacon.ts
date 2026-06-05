@@ -52,6 +52,8 @@ function isAvailable(p: BeaconPresence, now: number): boolean {
 export interface BeaconOpts {
   isBlocked: (a: string, b: string) => boolean;
   isSuspended: (userId: string) => boolean;
+  /** Mutual absolutes gate (lib/preferences): no alert unless both pass. */
+  isCompatible: (a: string, b: string) => boolean;
   cooldownMs?: number;
 }
 
@@ -84,6 +86,7 @@ export function detectAlerts(
     if (!isAvailable(other, now)) continue; // only opted-in, currently-available users
     if (opts.isSuspended(other.userId)) continue;
     if (opts.isBlocked(subject.userId, other.userId)) continue;
+    if (!opts.isCompatible(subject.userId, other.userId)) continue; // outside either's absolutes
     if (!inProximity(subject.cell, other.cell)) continue;
 
     const key = pairKey(subject.userId, other.userId);

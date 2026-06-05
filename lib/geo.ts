@@ -68,6 +68,40 @@ export function cellCenter(cell: GeoCell): LatLng {
   return { lat: centerLat, lng: centerLng };
 }
 
+export interface CellBounds {
+  south: number;
+  west: number;
+  north: number;
+  east: number;
+}
+
+/**
+ * The geographic rectangle a coarse cell covers. This is exactly the area other
+ * users can infer about you while you're available — drawing it on the map is
+ * the honest representation of "what is shared", far better than a generic circle.
+ */
+export function cellBounds(cell: GeoCell): CellBounds {
+  const [latIdxStr, lngIdxStr, cellMilesStr] = cell.split(":");
+  const latIdx = Number(latIdxStr);
+  const lngIdx = Number(lngIdxStr);
+  const cellMiles = Number(cellMilesStr);
+
+  const latCellDeg = cellMiles / MILES_PER_DEG_LAT;
+  const south = latIdx * latCellDeg;
+  const north = (latIdx + 1) * latCellDeg;
+
+  const refLat = (latIdx + 0.5) * latCellDeg;
+  const milesPerDegLng = Math.max(
+    MILES_PER_DEG_LAT * Math.cos((refLat * Math.PI) / 180),
+    1e-6,
+  );
+  const lngCellDeg = cellMiles / milesPerDegLng;
+  const west = lngIdx * lngCellDeg;
+  const east = (lngIdx + 1) * lngCellDeg;
+
+  return { south, west, north, east };
+}
+
 /** Great-circle distance in miles between two points. */
 export function haversineMiles(a: LatLng, b: LatLng): number {
   const R = 3958.8;
