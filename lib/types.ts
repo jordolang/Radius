@@ -47,6 +47,7 @@ export interface Match {
   stage: MatchStage;
   interested: Record<UserId, boolean>; // chat unlocks only when both true
   contentSharingConsent: Record<UserId, boolean>; // real photos/video gated per-user, revocable
+  archived?: boolean; // user tucked it away in Discover → Archive; never deletes data
   createdAt: number;
   updatedAt: number;
 }

@@ -32,6 +32,30 @@ const REGION_RADIUS_MILES = 50; // coarse vicinity check, not a meet-point check
 const STRIKES_TO_LOCK = 3;
 const SPAM_CREATE_THRESHOLD = 5;
 
+/** How far ahead a user may broadcast a future plan (hours). Capped at 24h. */
+export const PLAN_LEAD_OPTIONS = [2, 4, 8, 12, 24] as const;
+export type PlanLeadHours = (typeof PLAN_LEAD_OPTIONS)[number];
+
+/**
+ * The deliberately-vague public phrase for a lead time. We never show an exact
+ * arrival time (same reason we never show an exact place) — only a coarse window,
+ * so a future "maybe" can't be turned into a precise rendezvous.
+ */
+export function leadPhrase(hours: number): string {
+  switch (hours) {
+    case 2: return "in the next few hours";
+    case 4: return "in the next several hours";
+    case 8: return "in the upcoming hours";
+    case 12: return "sometime today";
+    case 24: return "within the next day";
+    default: return "soon";
+  }
+}
+
+export function isPlanLeadHours(n: unknown): n is PlanLeadHours {
+  return typeof n === "number" && (PLAN_LEAD_OPTIONS as readonly number[]).includes(n);
+}
+
 export type PlanStatus = "tentative" | "live" | "expired" | "cancelled";
 
 export interface PlannedPresence {

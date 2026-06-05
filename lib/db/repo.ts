@@ -197,6 +197,7 @@ function rowToMatch(r: any): Match {
     id: r.id, a: r.user_a, b: r.user_b, stage: r.stage,
     interested: { [r.user_a]: r.a_interested, [r.user_b]: r.b_interested },
     contentSharingConsent: { [r.user_a]: r.a_content_consent, [r.user_b]: r.b_content_consent },
+    archived: Boolean(r.archived),
     createdAt: ms(r.created_at), updatedAt: ms(r.updated_at),
   };
 }
@@ -206,13 +207,29 @@ export async function getMatch(id: string): Promise<Match | null> {
   return data ? rowToMatch(data) : null;
 }
 
+/** All matches the user is part of, most recently active first. */
+export async function getMatchesForUser(userId: UserId): Promise<Match[]> {
+  const data = orThrow(
+    await db().from("matches").select("*")
+      .or(`user_a.eq.${userId},user_b.eq.${userId}`)
+      .order("updated_at", { ascending: false }),
+  );
+  return (data ?? []).map(rowToMatch);
+}
+
 export async function putMatch(m: Match): Promise<void> {
   const { error } = await db().from("matches").upsert({
     id: m.id, user_a: m.a, user_b: m.b, stage: m.stage,
     a_interested: m.interested[m.a], b_interested: m.interested[m.b],
     a_content_consent: m.contentSharingConsent[m.a], b_content_consent: m.contentSharingConsent[m.b],
+    archived: m.archived ?? false,
     updated_at: iso(m.updatedAt),
   }, { onConflict: "id" });
+  if (error) throw new Error(error.message);
+}
+
+export async function setMatchArchived(id: string, archived: boolean): Promise<void> {
+  const { error } = await db().from("matches").update({ archived }).eq("id", id);
   if (error) throw new Error(error.message);
 }
 

@@ -80,6 +80,8 @@ export async function POST(req: NextRequest) {
     case "decline": m = decline(m); break;
     case "premeet": m = requirePreMeet(m); break;
     case "content_consent": m = setContentSharingConsent(m, userId, !!allow); break;
+    case "archive": m = { ...m, archived: true, updatedAt: Date.now() }; break;
+    case "unarchive": m = { ...m, archived: false, updatedAt: Date.now() }; break;
     default: return NextResponse.json({ error: "unknown action" }, { status: 400 });
   }
 
